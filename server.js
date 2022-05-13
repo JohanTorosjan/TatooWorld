@@ -22,13 +22,38 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to tattoworld application." });
+  res.json({ message: "Welcome to tattoworld api." });
 });
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8096;
 
 require("./routes/get.js")(app);
+
+
+// TEST For images : 
+const bodyParser = require('body-parser');
+
+const multer = require('multer');
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+     cb(null, 'uploads');
+  },
+  filename: function (req, file, cb) {
+     cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+var upload = multer({ storage: storage });
+
+app.post('/api/image-upload', upload.single('image'),(req, res) => {
+  const image = req.image;
+    res.send(apiResponse({message: 'File uploaded successfully.', image}));
+});
+
+function apiResponse(results){
+  return JSON.stringify({"status": 200, "error": null, "response": results});
+}
+
 
 
 app.listen(PORT, () => {
